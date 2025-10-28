@@ -1,0 +1,47 @@
+name: Generate Podcast Feeds
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'episodes-*/**'
+
+jobs:
+  generate-feeds:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Find podcast subfolders
+        id: find-folders
+        run: |
+          folders=$(find . -type d -name "episodes-*" | sed 's|^\./||')
+          echo "folders=$folders" >> $GITHUB_OUTPUT
+
+      - name: Generate feeds
+        run: |
+          for folder in ${{ steps.find-folders.outputs.folders }}; do
+            python generate_feed.py "$folder" "${{ github.repository_owner }}" "${{ github.event.repository.name }}"
+          done
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add episodes-*/feed.xml
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update podcast feeds"
+            git push
+          fi
