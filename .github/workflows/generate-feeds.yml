@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'episodes-*/**'
+  workflow_dispatch:
 
 jobs:
   generate-feeds:
