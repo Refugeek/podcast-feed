@@ -1,7 +1,7 @@
 {
   "title": "EScyber",
-  "description": "A podcast about cybersecurity in Spanish.",
-  "link": "https://example.com/escyber",
+  "description": "An AI generated podcast about cybersecurity and AI in Spanish.",
+  "link": "https://raw.githubusercontent.com/refugeek/podcast-feed/main/episodes-EScyber/feed.xml",
   "language": "es-es",
-  "author": "Podcast Host"
+  "author": "Rfgk"
 }
