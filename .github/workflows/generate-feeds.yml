@@ -46,3 +46,5 @@ jobs:
             git commit -m "Update podcast feeds"
             git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/Refugeek/podcast-feed.git HEAD:${{ github.ref }}
           fi
+        env:
+          PAT_TOKEN: ${{ secrets.GH_PAT }}
