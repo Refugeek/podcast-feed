@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" version="2.0">
+  <channel>
+    <title>EScyber</title>
+    <description>An AI generated podcast about cybersecurity and AI in Spanish.</description>
+    <link>https://raw.githubusercontent.com/refugeek/podcast-feed/main/episodes-EScyber/feed.xml</link>
+    <language>es-es</language>
+    <itunes:author>Rfgk</itunes:author>
+    <itunes:summary>An AI generated podcast about cybersecurity and AI in Spanish.</itunes:summary>
+    <item>
+      <title>20251029091515-what-brain-privacy-will-look-like-in-the-age-of-neurotech-zero-trust-has-a-blind-spot-your-ai-agents</title>
+      <description>20251029091515-what-brain-privacy-will-look-like-in-the-age-of-neurotech-zero-trust-has-a-blind-spot-your-ai-agents</description>
+      <itunes:summary>20251029091515-what-brain-privacy-will-look-like-in-the-age-of-neurotech-zero-trust-has-a-blind-spot-your-ai-agents</itunes:summary>
+      <pubDate>Wed, 29 Oct 2025 12:14:25 GMT</pubDate>
+      <enclosure url="https://raw.githubusercontent.com/Refugeek/podcast-feed/main/episodes-EScyber/20251029091515-what-brain-privacy-will-look-like-in-the-age-of-neurotech-zero-trust-has-a-blind-spot-your-ai-agents.mp3" type="audio/mpeg" length="34708364"/>
+      <itunes:duration>1735</itunes:duration>
+    </item>
+  </channel>
+</rss>
