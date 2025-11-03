@@ -3,5 +3,6 @@
   "description": "An AI generated podcast about cybersecurity and AI in Spanish.",
   "link": "https://raw.githubusercontent.com/refugeek/podcast-feed/main/episodes-EScyber/feed.xml",
   "language": "es-es",
-  "author": "Rfgk"
+  "author": "Rfgk",
+  "image": "https://raw.githubusercontent.com/refugeek/podcast-feed/main/episodes-EScyber/cover-EScyber.png"
 }

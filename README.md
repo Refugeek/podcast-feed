@@ -19,7 +19,8 @@ This repository automatically generates RSS feeds for podcasts stored in subfold
      "description": "Description",
      "link": "https://example.com",
      "language": "en-us",
-     "author": "Author"
+     "author": "Author",
+     "image": "https://example.com/thumbnail.jpg"  // Optional: URL to podcast cover art
    }
    ```
 3. Add episode audio files.

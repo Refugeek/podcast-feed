@@ -37,6 +37,7 @@ def generate_feed(subfolder_path, repo_owner, repo_name):
     podcast_link = config.get('link', 'https://example.com')
     podcast_language = config.get('language', 'en-us')
     podcast_author = config.get('author', 'Unknown')
+    podcast_image = config.get('image', '')
 
     rss = Element('rss', version='2.0', attrib={'xmlns:itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd'})
     channel = SubElement(rss, 'channel')
@@ -47,6 +48,8 @@ def generate_feed(subfolder_path, repo_owner, repo_name):
     SubElement(channel, 'language').text = podcast_language
     SubElement(channel, 'itunes:author').text = podcast_author
     SubElement(channel, 'itunes:summary').text = podcast_description
+    if podcast_image:
+        SubElement(channel, 'itunes:image', href=podcast_image)
 
     # Find audio files
     audio_files = [f for f in os.listdir(subfolder_path) if f.endswith(('.mp3', '.m4a', '.wav'))]
