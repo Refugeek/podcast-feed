@@ -7,6 +7,56 @@ from mutagen.mp3 import MP3
 from mutagen.easyid3 import EasyID3
 from xml.etree.ElementTree import Element, SubElement, tostring
 from xml.dom import minidom
+from html.parser import HTMLParser
+
+
+class _MainTextExtractor(HTMLParser):
+    """Simple HTML parser to extract plaintext contained within <main>...</main>."""
+    def __init__(self):
+        super().__init__()
+        self._in_main = False
+        self._chunks = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag.lower() == 'main':
+            self._in_main = True
+        # Insert line breaks on some common block-level tags to preserve spacing
+        if self._in_main and tag.lower() in {'p', 'div', 'section', 'article', 'li', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'}:
+            self._chunks.append('\n')
+
+    def handle_endtag(self, tag):
+        if self._in_main and tag.lower() in {'p', 'div', 'section', 'article', 'li'}:
+            self._chunks.append('\n')
+        if tag.lower() == 'main':
+            self._in_main = False
+
+    def handle_data(self, data):
+        if self._in_main:
+            self._chunks.append(data)
+
+    def text(self) -> str:
+        # Join and normalize whitespace/newlines
+        raw = ''.join(self._chunks)
+        lines = [line.strip() for line in raw.splitlines()]
+        # Remove empty consecutive lines
+        compact = '\n'.join([l for l in lines if l != '' or (l == '' and False)])
+        # Fallback: if all whitespace, return empty string
+        return compact.strip()
+
+
+def _extract_summary_from_html(html_path: str) -> str:
+    """Return plaintext inside <main>...</main> from an HTML file if present; else ''."""
+    if not os.path.exists(html_path):
+        return ''
+    try:
+        with open(html_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        parser = _MainTextExtractor()
+        parser.feed(content)
+        return parser.text()
+    except Exception:
+        # Be resilient; if parsing fails, just return empty and fall back later
+        return ''
 
 def get_audio_metadata(file_path):
     """Extract metadata from audio file."""
@@ -58,10 +108,17 @@ def generate_feed(subfolder_path, repo_owner, repo_name):
     for audio_file in audio_files:
         file_path = os.path.join(subfolder_path, audio_file)
         metadata = get_audio_metadata(file_path)
+        # Attempt to read per-episode summary from a same-named HTML file
+        base_name, _ = os.path.splitext(audio_file)
+        html_summary_path = os.path.join(subfolder_path, base_name + '.html')
+        summary_text = _extract_summary_from_html(html_summary_path)
+        if not summary_text:
+            # Fallback to metadata description (if ever added) or title
+            summary_text = metadata.get('description', metadata['title'])
         item = SubElement(channel, 'item')
         SubElement(item, 'title').text = metadata['title']
-        SubElement(item, 'description').text = metadata.get('description', metadata['title'])
-        SubElement(item, 'itunes:summary').text = metadata.get('description', metadata['title'])
+        SubElement(item, 'description').text = summary_text
+        SubElement(item, 'itunes:summary').text = summary_text
         SubElement(item, 'pubDate').text = datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')  # Placeholder, use file mtime
         SubElement(item, 'enclosure', url=f'https://raw.githubusercontent.com/{repo_owner}/{repo_name}/main/{subfolder_path}/{audio_file}', type='audio/mpeg', length=str(os.path.getsize(file_path)))
         SubElement(item, 'itunes:duration').text = str(metadata['duration'])
