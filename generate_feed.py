@@ -16,6 +16,7 @@ class _MainTextExtractor(HTMLParser):
         super().__init__()
         self._in_main = False
         self._chunks = []
+        self._anchor_stack = []  # track hrefs of open <a> tags within <main>
 
     def handle_starttag(self, tag, attrs):
         if tag.lower() == 'main':
@@ -23,10 +24,23 @@ class _MainTextExtractor(HTMLParser):
         # Insert line breaks on some common block-level tags to preserve spacing
         if self._in_main and tag.lower() in {'p', 'div', 'section', 'article', 'li', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'}:
             self._chunks.append('\n')
+        if self._in_main and tag.lower() == 'a':
+            href = None
+            for k, v in attrs:
+                if k.lower() == 'href':
+                    href = v
+                    break
+            self._anchor_stack.append(href)
 
     def handle_endtag(self, tag):
         if self._in_main and tag.lower() in {'p', 'div', 'section', 'article', 'li'}:
             self._chunks.append('\n')
+        if self._in_main and tag.lower() == 'a':
+            # Close anchor: append " (URL)" after the link text if href exists
+            if self._anchor_stack:
+                href = self._anchor_stack.pop()
+                if href:
+                    self._chunks.append(f" ({href})")
         if tag.lower() == 'main':
             self._in_main = False
 
@@ -115,8 +129,17 @@ def generate_feed(subfolder_path, repo_owner, repo_name):
         if not summary_text:
             # Fallback to metadata description (if ever added) or title
             summary_text = metadata.get('description', metadata['title'])
+        # Attempt to read per-episode summary from a same-named HTML file
+        base_name, _ = os.path.splitext(audio_file)
+        html_summary_path = os.path.join(subfolder_path, base_name + '.html')
+        summary_text = _extract_summary_from_html(html_summary_path)
+        if not summary_text:
+            # Fallback to metadata description (if ever added) or title
+            summary_text = metadata.get('description', metadata['title'])
         item = SubElement(channel, 'item')
         SubElement(item, 'title').text = metadata['title']
+        SubElement(item, 'description').text = summary_text
+        SubElement(item, 'itunes:summary').text = summary_text
         SubElement(item, 'description').text = summary_text
         SubElement(item, 'itunes:summary').text = summary_text
         SubElement(item, 'pubDate').text = datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')  # Placeholder, use file mtime
