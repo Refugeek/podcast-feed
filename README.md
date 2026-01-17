@@ -1,6 +1,6 @@
 # Podcast Feed Generator
 
-This repository automatically generates RSS feeds for podcasts stored in subfolders.
+This repository automatically generates RSS feeds for podcasts stored in subfolders. Since the repo is synchronised with Github, this makes the podcast episodes available in podcasting apps.
 
 ## Structure
 
