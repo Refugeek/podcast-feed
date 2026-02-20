@@ -2,6 +2,8 @@
 
 This repository automatically generates RSS feeds for podcasts stored in subfolders. Since the repo is synchronised with Github, this makes the podcast episodes available in podcasting apps.
 
+Note: currently the push to github logic is included in the podcast-generator repo (podcast_publisher.py#L154-L175)
+
 ## Structure
 
 - `episodes-{podcast-name}/`: Subfolder for each podcast.
