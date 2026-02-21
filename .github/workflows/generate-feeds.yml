@@ -26,15 +26,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Find podcast subfolders
-        id: find-folders
-        run: |
-          folders=$(find . -type d -name "episodes-*" | sed 's|^\./||')
-          echo "folders=$folders" >> $GITHUB_OUTPUT
-
       - name: Generate feeds
         run: |
-          for folder in ${{ steps.find-folders.outputs.folders }}; do
+          find . -mindepth 1 -maxdepth 1 -type d -name "episodes-*" -print0 | while IFS= read -r -d '' folder; do
+            folder="${folder#./}"
             python generate_feed.py "$folder" "${{ github.repository_owner }}" "${{ github.event.repository.name }}"
           done
 
@@ -42,7 +37,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add episodes-*/feed.xml
+          find . -mindepth 2 -maxdepth 2 -type f -path "./episodes-*/feed.xml" -print0 | xargs -0 -r git add
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
